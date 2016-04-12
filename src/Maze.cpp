@@ -34,9 +34,64 @@ more parameters .
 */
 
 #include<stdlib.h>
+int path_wrapper(int *maze, int rows, int columns, int a, int b, int c, int d, int prev1, int prev2)
+{
+	int side[2] = { 0 };
+	int top[2] = { 0 };
+	int ans1, ans2;
+	if ((a == c && (b + 1 == d || b - 1 == d)) || (b == d && (a + 1 == c || a - 1 == c)))
+		return 1;
+	if (b - 1 > 0 && *((maze + a*columns) + (b - 1)) == 1 && !(a == prev1&&b - 1 == prev2))
+		side[0] = 1;
+	if (b + 1 < columns&&*((maze + a*columns) + (b + 1)) == 1 && !(a == prev1&&b + 1 == prev2))
+		side[1] = 1;
+	if (a - 1 > 0 && *((maze + (a - 1) * columns) + b) == 1 && !(a - 1 == prev1&&b == prev2))
+		top[0] = 1;
+	if (a + 1 < rows && *((maze + (a + 1) * columns) + b) == 1 && !(a + 1 == prev1&&b == prev2))
+		top[1] = 1;
+	if (top[0] == 1 && top[1] == 1)
+	{
+		if (c - a - 1 < c - a + 1)
+			ans1 = a - 1;
+		else
+			ans1 = a + 2;
+		ans2 = b;
+	}
+	else if (top[0] == 1)
+	{
+		ans1 = a - 1; ans2 = b;
+	}
+	else if (top[1] == 1)
+	{
+		ans1 = a + 1; ans2 = b;
+	}
+	else if (side[0] == 1 && side[1] == 1)
+	{
+		if (d - b - 1 < d - b + 1)
+			ans2 = b - 1;
+		else
+			ans2 = b + 1;
+		ans1 = a;
+	}
+	else if (side[0] == 1)
+	{
+		ans1 = a; ans2 = b - 1;
+	}
+	else if (side[1] == 1)
+	{
+		ans1 = a; ans2 = b + 1;
+	}
+	else
+		return 0;
+	return path_wrapper(maze, rows, columns, ans1, ans2, c, d, a, b);
+}
 
 
 int path_exists(int *maze, int rows, int columns, int x1, int y1, int x2, int y2)
 {
-	return 1;
+	if (rows<0 || columns<0 || x1<0 || y1<0 || x2<0 || y2<0 || x1 >= rows || x2 >= rows || y1 >= columns || y2 >= columns)
+		return 0;
+	if (*((maze + x2*columns) + y2) == 0)
+		return 0;
+	return path_wrapper(maze, rows, columns, x1, y1, x2, y2, -1, -1);
 }
